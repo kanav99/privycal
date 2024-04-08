@@ -1,0 +1,44 @@
+---
+program: main
+inputs:
+  secrets:
+    calender_p0_h0:
+      SecretInteger: '1'
+    calender_p0_h1:
+      SecretInteger: '2'
+    calender_p0_h2:
+      SecretInteger: '4'
+    calender_p0_h3:
+      SecretInteger: '3'
+    calender_p0_h4:
+      SecretInteger: '1'
+    calender_p0_h5:
+      SecretInteger: '2'
+    calender_p0_h6:
+      SecretInteger: '1'
+    calender_p0_h7:
+      SecretInteger: '2'
+
+    calender_p1_h0:
+      SecretInteger: '1'
+    calender_p1_h1:
+      SecretInteger: '2'
+    calender_p1_h2:
+      SecretInteger: '4'
+    calender_p1_h3:
+      SecretInteger: '1'
+    calender_p1_h4:
+      SecretInteger: '1'
+    calender_p1_h5:
+      SecretInteger: '2'
+    calender_p1_h6:
+      SecretInteger: '1'
+    calender_p1_h7:
+      SecretInteger: '2'
+
+  public_variables: {}
+expected_outputs:
+  max_date:
+    SecretInteger: '2'
+  valid_bit:
+    SecretInteger: '1'

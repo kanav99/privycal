@@ -1,0 +1,8 @@
+name = "set-intersection"
+version = "0.1.0"
+authors = ["Kanav Gupta"]
+
+[[programs]]
+path = "src/main.py"
+name = "main"
+prime_size = 128
