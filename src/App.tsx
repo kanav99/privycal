@@ -4,20 +4,26 @@ import {
   ChakraProvider,
   Box,
   Text,
-  Link,
   VStack,
-  Code,
   Grid,
   theme,
   Button,
-  Input,
+  HStack,
+  Heading,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
 } from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
-import { Logo } from "./Logo"
+import { ColorModeSwitcher } from "./ColorModeSwitcher";
+import { ReactTyped } from "react-typed";
+import * as ethers from "ethers";
 
 import { compute } from "./nillion/compute";
 import { getUserKeyFromSnap } from "./nillion/getUserKeyFromSnap";
-import { retrieveSecretCommand } from "./nillion/retrieveSecretCommand";
 import { retrieveSecretInteger } from "./nillion/retrieveSecretInteger";
 import { storeProgram } from "./nillion/storeProgram";
 import { storeSecretsInteger } from "./nillion/storeSecretsInteger";
@@ -27,9 +33,9 @@ interface StringObject {
   [key: string]: string | null;
 }
 
+const appName = "PrivyCal";
 
-
-export const App = () => {
+export const SampleApp = () => {
 
   const [parties] = useState<string[]>(["Party1"]);
   const [outputs] = useState<string[]>(["my_output"]);
@@ -123,8 +129,7 @@ export const App = () => {
     }
   }
   
-  return <ChakraProvider theme={theme}>
-    <Box textAlign="center" fontSize="xl">
+  return <Box textAlign="center" fontSize="xl">
       <Grid minH="100vh" p={3}>
         <ColorModeSwitcher justifySelf="flex-end" />
         <VStack spacing={8}>
@@ -142,7 +147,6 @@ export const App = () => {
           <SecretInput onSubmit={handleSecretFormSubmit} otherPartyId={null} secretName="my_int2" secretType="number"/>
           {!computeResult && (
             <Button
-              className="btn btn-sm btn-primary mt-4"
               onClick={handleCompute}
               disabled={Object.values(storedSecretsNameToStoreId).every(v => !v)}
             >
@@ -152,6 +156,202 @@ export const App = () => {
           {computeResult && <Text>✅ Compute result: {computeResult}</Text>}
         </VStack>
       </Grid>
-    </Box>
-  </ChakraProvider>;
+    </Box>;
+}
+
+const HomePage = () => {
+  function handleScroll() {
+    window.scrollBy({
+      top: window.innerHeight,
+      left: 0, 
+      behavior: 'smooth',
+    });
+  }
+
+  return <>
+    <VStack paddingX={65} paddingY={0} justify="space-around" alignItems="left">
+      {/* Page 1 */}
+      <VStack minH="100vh" justify="space-evenly">
+        <VStack alignItems="left">
+          <HStack>
+            <Heading fontSize={80}>Schedule</Heading>
+            <Heading fontSize={80} textColor="aqua">
+              <ReactTyped strings={["meetings", "trips", "calls"]} typeSpeed={80} loop />
+            </Heading>
+          </HStack>
+          <Heading fontSize={80}> without sharing calenders</Heading>
+        </VStack>
+        <HStack justify="space-around">
+          <Button borderRadius={20}>Try&nbsp;<Text textColor="aqua">{appName}</Text>&nbsp;now!</Button>
+        </HStack>
+      </VStack>
+      {/* Page 2 */}
+      <VStack minH="100vh" justify="space-evenly">
+        <Heading fontSize={"5xl"}>How {appName} works?</Heading>
+      </VStack>
+      {/* Page 3 */}
+      <VStack minH="100vh" justify="space-evenly">
+        <Heading fontSize={"5xl"}>How {appName} works?</Heading>
+      </VStack>
+      {/* Footer */}
+      <VStack alignItems={"end"} paddingBottom={10}>
+        <Heading fontSize={40} textColor="aqua">{appName}</Heading>
+        <Text fontWeight={"thin"}>© 2024 Kanav Gupta</Text>
+      </VStack>
+    </VStack>
+    <Button size="lg" position={"fixed"} right={10} bottom={10} onClick={handleScroll} borderRadius={30}>
+      {"⟩"}
+    </Button>
+  </>;
+}
+
+const days = 7;
+const hours = 8;
+
+let calenderArr = Array(days).fill(Array(hours));
+
+const CalenderButton = () => {
+  const maxLevel = 2;
+
+  const [level, setLevel] = useState<number>(0);
+
+  if (level === 0)
+    return <Button width="95%" borderRadius={0} onClick={() => setLevel((level + 1) % maxLevel)}>
+      ×
+    </Button>;
+  else {
+    return <Button width="95%" bg={"#66AA6A"} _hover={{bg: "#66DD6A"}} borderRadius={0} onClick={() => setLevel((level + 1) % maxLevel)}>
+      {level}
+    </Button>;
+  }
+}
+
+const Calender = () => {
+
+  const [calender] = useState<number[][]>(calenderArr);
+
+  return <VStack paddingX={65} paddingY={0} justify="space-around" alignItems="left">
+    {/* Page 2 */}
+    <VStack minH="100vh" justify="space-evenly">
+      <Heading fontSize={"5xl"}>Step 2: Select your slots</Heading>
+      <TableContainer>
+        <Table variant='simple'>
+          <Thead>
+            <Tr>
+              <Th></Th>
+              <Th>Sun</Th>
+              <Th>Mon</Th>
+              <Th>Tue</Th>
+              <Th>Wed</Th>
+              <Th>Thu</Th>
+              <Th>Fri</Th>
+              <Th>Sat</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            <Tr>
+              <Td isNumeric>9am-10am</Td>
+              {/* Repeat 7 times */}
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>10am-11am</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>11am-12am</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>12am-1pm</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>1pm-2pm</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>2pm-3pm</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>3pm-4pm</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+            <Tr>
+              <Td isNumeric>4pm-5pm</Td>
+              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </VStack>
+  </VStack>;
+}
+
+function addressTruncate(addr: string) {
+  return addr.substring(0, 6).toLowerCase() + "..." + addr.substring(addr.length - 4).toLowerCase();
+}
+
+const ConnectWallet = () => {
+  const [connected, setConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Function to connect/disconnect the wallet
+  async function connectWallet() {
+    if (!connected) {
+      setLoading(true);
+      // Connect the wallet using ethers.js
+      // @ts-ignore
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const _walletAddress = await signer.getAddress();
+      setConnected(true);
+      setWalletAddress(_walletAddress);
+      setLoading(false);
+    } else {
+      // Disconnect the wallet
+      // @ts-ignore
+      // window.ethereum.selectedAddress = null;
+      setConnected(false);
+      setWalletAddress("");
+    }
+  }
+
+  return <VStack paddingX={65} paddingY={0} justify="space-around" alignItems="left">
+    {/* Page 2 */}
+    <VStack minH="100vh" justify="space-evenly" spacing={"-40vh"}>
+      <Heading fontSize={"5xl"}>Step 1: Connect your ethereum wallet</Heading>
+      {connected && <Button onClick={connectWallet} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
+        {"Connected " + addressTruncate(walletAddress)}
+      </Button>}
+      {!connected && <Button onClick={connectWallet} loadingText="Connecting..." isLoading={loading} >
+        Connect Wallet
+      </Button>}
+    </VStack>
+  </VStack>;
+}
+
+export const App = () => {
+  const numPages = 3;
+  const [page, setPage] = useState<number>(0);
+
+  return <ChakraProvider theme={theme}>
+    {page === 0 && <HomePage /> }
+    {page === 1 && <ConnectWallet />}
+    {page === 2 && <Calender />}
+
+    <Button size="lg" position={"fixed"} left={10} bottom={"50%"} borderRadius={30} isDisabled={page===0} onClick={
+      () => setPage(p => p === 0 ? p : (p - 1))
+    }>
+      {"⟨"}
+    </Button>
+    
+    <Button size="lg" position={"fixed"} right={10} bottom={"50%"} borderRadius={30}isDisabled={page===(numPages-1)} onClick={
+      () => setPage(p => (p === (numPages-1)) ? p : (p + 1))
+    }>
+      {"⟩"}
+    </Button>
+  </ChakraProvider>
 }
