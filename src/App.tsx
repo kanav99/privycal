@@ -28,6 +28,7 @@ import { retrieveSecretInteger } from "./nillion/retrieveSecretInteger";
 import { storeProgram } from "./nillion/storeProgram";
 import { storeSecretsInteger } from "./nillion/storeSecretsInteger";
 import SecretInput from "./SecretInput";
+import { FaGoogle } from "react-icons/fa";
 
 interface StringObject {
   [key: string]: string | null;
@@ -207,20 +208,42 @@ const HomePage = () => {
 
 const days = 7;
 const hours = 8;
+const maxLevel = 5;
 
-let calenderArr = Array(days).fill(Array(hours));
+const calenderArr = Array(days).fill([]).map(() => Array(hours).fill(0));
 
-const CalenderButton = () => {
-  const maxLevel = 2;
+interface CalenderButtonProps {
+  hr: number;
+  day: number;
+  levelArr: any;
+  setLevelArr: (x :any) => any;
+}
 
-  const [level, setLevel] = useState<number>(0);
+const CalenderButton: React.FC<CalenderButtonProps> = (
+  { hr, day, levelArr, setLevelArr }
+) => {
+
+  const level = levelArr[day][hr];
+
+  const increaseLevel = () => {
+    setLevelArr((lvlArr: any) => {
+      let newLvlArr = Array(days).fill([]).map(() => Array(hours).fill(0));
+      for (let i = 0; i < days; i++) {
+        for (let j = 0; j < hours; j++) {
+          newLvlArr[i][j] = lvlArr[i][j];
+        }
+      }
+      newLvlArr[day][hr] = (newLvlArr[day][hr] + 1) % maxLevel;
+      return newLvlArr;
+    });
+  }
 
   if (level === 0)
-    return <Button width="95%" borderRadius={0} onClick={() => setLevel((level + 1) % maxLevel)}>
+    return <Button width="95%" borderRadius={0} onClick={increaseLevel}>
       ×
     </Button>;
   else {
-    return <Button width="95%" bg={"#66AA6A"} _hover={{bg: "#66DD6A"}} borderRadius={0} onClick={() => setLevel((level + 1) % maxLevel)}>
+    return <Button width="95%" bg={"#66AA6A"} _hover={{bg: "#66DD6A"}} borderRadius={0} onClick={increaseLevel}>
       {level}
     </Button>;
   }
@@ -228,12 +251,14 @@ const CalenderButton = () => {
 
 const Calender = () => {
 
-  const [calender] = useState<number[][]>(calenderArr);
+  const [calender, setCalender] = useState<Array<Array<number>>>(calenderArr);
+  const timeslots = ["9am-10am", "10am-11am", "11am-12am", "12am-1pm", "1pm-2pm", "2pm-3pm", "3pm-4pm", "4pm-5pm"];
 
   return <VStack paddingX={65} paddingY={0} justify="space-around" alignItems="left">
     {/* Page 2 */}
     <VStack minH="100vh" justify="space-evenly">
       <Heading fontSize={"5xl"}>Step 2: Select your slots</Heading>
+      <Button borderRadius={20} bg="whitesmoke" color="black" leftIcon={<FaGoogle />}>Fetch from Google Calender</Button>
       <TableContainer>
         <Table variant='simple'>
           <Thead>
@@ -249,39 +274,10 @@ const Calender = () => {
             </Tr>
           </Thead>
           <Tbody>
-            <Tr>
-              <Td isNumeric>9am-10am</Td>
-              {/* Repeat 7 times */}
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>10am-11am</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>11am-12am</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>12am-1pm</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>1pm-2pm</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>2pm-3pm</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>3pm-4pm</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
-            <Tr>
-              <Td isNumeric>4pm-5pm</Td>
-              {calenderArr.map((_, i) => <Td key={i} padding={0}><CalenderButton /></Td>)}
-            </Tr>
+            {timeslots.map((timeslot, h) => (<Tr key={h}>
+              <Td isNumeric>{timeslot}</Td>
+              {calenderArr.map((_, d) => <Td key={d + "_" + h} padding={0}><CalenderButton hr={h} day={d} levelArr={calender} setLevelArr={setCalender}/></Td>)}
+            </Tr>))}
           </Tbody>
         </Table>
       </TableContainer>
