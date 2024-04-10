@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   VStack,
   Button,
@@ -62,9 +62,9 @@ export const Calender = () => {
   const [calender, setCalender] = useState<Array<Array<number>>>(calenderArr);
   const timeslots = ["9am-10am", "10am-11am", "11am-12am", "12am-1pm", "1pm-2pm", "2pm-3pm", "3pm-4pm", "4pm-5pm"];
 
-  return <VStack paddingX={65} paddingY={0} justify="space-around" alignItems="left">
+  return <VStack paddingY={0} justify="space-around" alignItems="left">
     {/* Page 2 */}
-    <VStack minH="100vh" justify="space-evenly">
+    <VStack minH="100vh" minW="100vw" justify="space-evenly">
       <Heading fontSize={"5xl"}>Step 2: Select your slots</Heading>
       <Button borderRadius={20} bg="whitesmoke" color="black" leftIcon={<FaGoogle />}>Fetch from Google Calender</Button>
       <TableContainer>

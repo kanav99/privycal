@@ -4,47 +4,54 @@ import {
   VStack,
   Button,
   Heading,
+  Text,
+  Link,
 } from "@chakra-ui/react";
-import * as ethers from "ethers";
+import { getUserKeyFromSnap } from "../nillion/getUserKeyFromSnap";
 
 function addressTruncate(addr: string) {
-    return addr.substring(0, 6).toLowerCase() + "..." + addr.substring(addr.length - 4).toLowerCase();
+    return addr.substring(0, 4).toLowerCase() + "..." + addr.substring(addr.length - 4).toLowerCase();
   }
+
+interface ConnectWalletProps {
+  nextPage: () => void;
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
   
-export const ConnectWallet = () => {
+export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
   const [connected, setConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userKey, setUserKey] = useState<string | null>(null);
 
-  // Function to connect/disconnect the wallet
-  async function connectWallet() {
-    if (!connected) {
-      setLoading(true);
-      // Connect the wallet using ethers.js
-      // @ts-ignore
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const _walletAddress = await signer.getAddress();
-      setConnected(true);
-      setWalletAddress(_walletAddress);
-      setLoading(false);
-    } else {
-      // Disconnect the wallet
-      // @ts-ignore
-      // window.ethereum.selectedAddress = null;
-      setConnected(false);
-      setWalletAddress("");
-    }
+  async function handleConnectToSnap() {
+    setLoading(true);
+    const snapResponse = await getUserKeyFromSnap();
+    setUserKey(snapResponse?.user_key || null);
+    setConnected(snapResponse?.connectedToSnap || false);
+    setLoading(false);
+    await sleep(300);
+    nextPage();
   }
 
-  return <VStack paddingX={65} paddingY={0} justify="space-around" alignItems="left">
+  async function handleDisconnectSnap() {
+    setUserKey(null);
+    setConnected(false);
+  }
+
+  return <VStack paddingY={0} justify="space-around" alignItems="left">
     {/* Page 2 */}
-    <VStack minH="100vh" justify="space-evenly" spacing={"-40vh"}>
-      <Heading fontSize={"5xl"}>Step 1: Connect your ethereum wallet</Heading>
-      {connected && <Button onClick={connectWallet} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
-        {"Connected " + addressTruncate(walletAddress)}
+    <VStack minH="100vh" justify="space-evenly" spacing={"-40vh"} minW="100vw">
+      <Heading fontSize={"5xl"}>Step 1: Connect your Nillion account</Heading>
+      <Text>
+        Connect to your Nillion account. You need to install the Nillion snap on MetaMask Flask. Find the instructions <Link target="_blank" href="https://nillion-snap-site.vercel.app/" textDecoration={"underline"}>here</Link>.
+      </Text>
+      {connected && <Button onClick={handleDisconnectSnap} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
+        {"Connected " + addressTruncate(userKey || "")}
       </Button>}
-      {!connected && <Button onClick={connectWallet} loadingText="Connecting..." isLoading={loading} >
+      {!connected && <Button onClick={handleConnectToSnap} loadingText="Connecting..." isLoading={loading} >
         Connect Wallet
       </Button>}
     </VStack>
