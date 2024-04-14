@@ -109,9 +109,9 @@ export const SampleApp = () => {
     // compute on secrets
     async function handleCompute() {
       if (programId) {
-        await compute(nillion, nillionClient, Object.values(storedSecretsNameToStoreId), programId, outputs[0]).then(
-          result => setComputeResult(result),
-        );
+        // await compute(nillion, nillionClient, Object.values(storedSecretsNameToStoreId), programId, outputs[0]).then(
+        //   result => setComputeResult(result),
+        // );
       }
     }
     

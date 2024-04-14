@@ -8,6 +8,7 @@ interface JsInput {
 export async function compute(
   nillion: any,
   nillionClient: any,
+  other_party_id: string,
   store_ids: (string | null)[],
   program_id: string,
   outputName: string,
@@ -19,10 +20,10 @@ export async function compute(
     const program_bindings = new nillion.ProgramBindings(program_id);
 
     // add input and output party details (name and party id) to program bindings
-    const partyName = "Party1";
     const party_id = nillionClient.party_id;
-    program_bindings.add_input_party(partyName, party_id);
-    program_bindings.add_output_party(partyName, party_id);
+    program_bindings.add_input_party("Party0", party_id);
+    program_bindings.add_input_party("Party1", other_party_id);
+    program_bindings.add_output_party("Party0", party_id);
 
     console.log("program_bindings", program_bindings);
     console.log("party_id", party_id);

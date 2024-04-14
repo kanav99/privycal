@@ -6,10 +6,13 @@ import {
   Heading,
   Text,
   Link,
+  Alert,
 } from "@chakra-ui/react";
 import { getUserKeyFromSnap } from "../nillion/getUserKeyFromSnap";
 
-function addressTruncate(addr: string) {
+import { UserContext } from "../App";
+
+export function addressTruncate(addr: string) {
     return addr.substring(0, 4).toLowerCase() + "..." + addr.substring(addr.length - 4).toLowerCase();
   }
 
@@ -22,23 +25,33 @@ function sleep(ms: number) {
 }
   
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
-  const [connected, setConnected] = useState(false);
+  const {c2, setC2} = React.useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [userKey, setUserKey] = useState<string | null>(null);
+  // const [userKey, setUserKey] = useState<string | null>(null);
 
   async function handleConnectToSnap() {
     setLoading(true);
-    const snapResponse = await getUserKeyFromSnap();
-    setUserKey(snapResponse?.user_key || null);
-    setConnected(snapResponse?.connectedToSnap || false);
-    setLoading(false);
-    await sleep(300);
-    nextPage();
+    try {
+      const snapResponse = await getUserKeyFromSnap();
+      if (snapResponse == undefined) {
+        throw new Error("Snap response is undefined");
+      }
+      console.log(snapResponse?.user_key);
+      setC2(snapResponse?.user_key || null);
+      // setC2(snapResponse?.connectedToSnap || false);
+      setLoading(false);
+      await sleep(300);
+      nextPage();
+    }
+    catch {
+      setLoading(false);
+      alert("hoo hoo");
+    }
   }
 
   async function handleDisconnectSnap() {
-    setUserKey(null);
-    setConnected(false);
+    // setUserKey(null);
+    setC2(null);
   }
 
   return <VStack paddingY={0} justify="space-around" alignItems="left">
@@ -48,10 +61,10 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
       <Text>
         Connect to your Nillion account. You need to install the Nillion snap on MetaMask Flask. Find the instructions <Link target="_blank" href="https://nillion-snap-site.vercel.app/" textDecoration={"underline"}>here</Link>.
       </Text>
-      {connected && <Button onClick={handleDisconnectSnap} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
-        {"Connected " + addressTruncate(userKey || "")}
+      {(c2 !== null) && <Button onClick={handleDisconnectSnap} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
+        {"Connected"}
       </Button>}
-      {!connected && <Button onClick={handleConnectToSnap} loadingText="Connecting..." isLoading={loading} >
+      {(c2 == null) && <Button onClick={handleConnectToSnap} loadingText="Connecting..." isLoading={loading} >
         Connect Wallet
       </Button>}
     </VStack>

@@ -7,6 +7,8 @@ import {
 } from "@chakra-ui/react";
 import { ReactTyped } from "react-typed";
 
+import { UserContext } from "../App";
+
 interface HomePageProps {
   appName: string;
   nextPage: () => void;
