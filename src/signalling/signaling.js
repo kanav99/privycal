@@ -33,7 +33,7 @@ class SignalingChannel {
         this.socket.emit("message", { from: this.peerId, target: "all", message });
     }
     sendTo(targetPeerId, message) {
-        this.socket.emit("messageOne", { from: this.peerId, target: targetPeerId, message });
+        return this.socket.emit("messageOne", { from: this.peerId, target: targetPeerId, message });
     }
     disconnect() {
         if (this.socket) {

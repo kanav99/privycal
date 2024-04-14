@@ -23,13 +23,14 @@ import { compute } from "../nillion/compute";
     const {cal1store, cal0store, nillion, nillionClient, programId, otherPartyId, partyBit, signalingChannel, result, setResult} = React.useContext(UserContext);
 
     const [loading, setLoading] = React.useState<boolean>(false);
+    const timeslots = ["9am-10am", "10am-11am", "11am-12am", "12am-1pm", "1pm-2pm", "2pm-3pm", "3pm-4pm", "4pm-5pm"];
     
     const computeIntersection = async () => {
       setLoading(true);
       const result = await compute(nillion, nillionClient, otherPartyId, [cal0store, cal1store], programId, "max_date");
       setResult(result);
       setLoading(false);
-      signalingChannel.send({to: programId + "-other", message: {result: result}});
+      console.log(signalingChannel.sendTo(programId + "-other", {result: result}));
     }
 
     return <>
@@ -55,8 +56,8 @@ import { compute } from "../nillion/compute";
               <Input value={(cal1store === null ? "Pending" : "Ready")} pr='4.5rem' readOnly></Input>
             </InputGroup>
           </HStack>
-          <Button onClick={computeIntersection} isLoading={loading} isDisabled={(partyBit === 1) || !(cal1store !== null && cal0store !== null)}>Compute</Button>
-          <Text>Intersection: {result}</Text>
+          <Button onClick={computeIntersection} isLoading={loading} isDisabled={(partyBit === 1) || !(cal1store !== null && cal0store !== null)}>Find a time!</Button>
+          {(result !== "") && <Text>You should meet at {timeslots[parseInt(result)]}!</Text>}
           </VStack>
         </VStack>
       </VStack>

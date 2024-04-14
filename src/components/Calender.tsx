@@ -21,7 +21,7 @@ import {
 import { UserContext } from "../App";
 import { storeSecretsInteger } from "../nillion/storeSecretsInteger";
 
-const days = 7;
+const days = 1;
 const hours = 8;
 const maxLevel = 5;
 
@@ -95,20 +95,22 @@ export const Calender: React.FC<CalenderProps> = ({nextPage}) => {
         setCal0store(store_id);
       if (partyBit === 1) {
         setCal1store(store_id);
+        setCal0store("hehe");
         const SignalingChannel = require("../signalling/signaling");
         const peerId = programId + "-other";
         const signalingServerUrl = "http://kanav.eastus.cloudapp.azure.com:3030/";
         const token = "SIGNALING123";
         const channel = new SignalingChannel(peerId, signalingServerUrl, token);
-        channel.connect();
-        channel.sendTo(programId, {store_id, party_id: nillionClient.party_id});
         channel.onMessage = (message: any) => {
+          console.log("Got message: ");
           console.log(message);
           if (message.from === programId) {
             if (message.message)
               setResult(message.message.result)
           }
         };
+        channel.connect();
+        channel.sendTo(programId, {store_id, party_id: nillionClient.party_id});
         setSignalingChannel(channel);
       }
       setLoading(false);
@@ -136,13 +138,14 @@ export const Calender: React.FC<CalenderProps> = ({nextPage}) => {
           <Thead>
             <Tr>
               <Th></Th>
-              <Th>Sun</Th>
+              <Th>Tomorrow</Th>
+              {/* <Th>Sun</Th>
               <Th>Mon</Th>
               <Th>Tue</Th>
               <Th>Wed</Th>
               <Th>Thu</Th>
               <Th>Fri</Th>
-              <Th>Sat</Th>
+              <Th>Sat</Th> */}
             </Tr>
           </Thead>
           <Tbody>
