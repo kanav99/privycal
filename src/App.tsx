@@ -34,51 +34,58 @@ export const App = () => {
     handleScroll();
   }
 
-  const [c1, setC1] = useState(true);
-  const [c2, setC2] = useState<string | null>(null); // user key
-  const [c3, setC3] = useState<string | null>(null); // program id
-  const [c4, setC4] = useState(false);
+  const [myUserKey, setMyUserKey] = useState<string | null>(null); // user key
+  const [myUserId, setMyUserId] = useState<string | null>(null);
+  const [programId, setProgramId] = useState<string | null>(null); // program id
+  const [partyBit, setPartyBit] = useState<number | null>(null); // party bit
+  const [host, setHost] = useState<string | null>(null);
   const [cal0store, setCal0store] = useState<any>(null);
   const [cal1store, setCal1store] = useState<any>(null);
   const [otherPartyId, setOtherPartyId] = useState<string | null>(null);
 
   const [nillion, setNillion] = useState<any>(null);
   const [nillionClient, setNillionClient] = useState<any>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [signalingChannel, setSignalingChannel] = useState<any>(null);
+  const [result, setResult] = React.useState<string>("");
 
   const d = {
-    c1, c2, c3, c4,
-    setC1, setC2, setC3, setC4,
+    myUserKey, setMyUserKey,
+    programId, setProgramId,
+    partyBit, setPartyBit,
     nillion, nillionClient,
     cal0store, cal1store,
     setCal0store, setCal1store,
     otherPartyId, setOtherPartyId,
+    host, setHost,
+    myUserId, setMyUserId,
+    signalingChannel, setSignalingChannel,
+    result, setResult,
   }
 
   React.useEffect(() => {
-    if (c2) {
+    if (myUserKey) {
       const getNillionClientLibrary = async () => {
         const nillionClientUtil = await import("./nillion/nillionClient");
-        const libraries = await nillionClientUtil.getNillionClient(c2);
+        const libraries = await nillionClientUtil.getNillionClient(myUserKey);
         setNillion(libraries.nillion);
         setNillionClient(libraries.nillionClient);
         return libraries.nillionClient;
       };
       getNillionClientLibrary().then(nillionClient => {
-        const user_id = nillionClient.user_id;
-        setUserId(user_id);
+        setMyUserId(nillionClient.user_id);
       });
     }
-  }, [c2]);
+  }, [myUserKey]);
 
   const iterateC = (page: number) =>
   {
     switch(page)
     {
-      case 0: return c1;
-      case 1: return !(c2 === null);
-      case 2: return !(c3 === null);
-      case 3: return c4;
+      case 0: return true;
+      case 1: return !(myUserKey === null);
+      case 2: return !(programId === null);
+      case 3: return true;
+      default: return true;
     }
   }
 
@@ -92,9 +99,7 @@ export const App = () => {
         <Results nextPage={nextPage}/>
       </HStack>
 
-      <Button size="lg" position={"fixed"} left={10} bottom={"50%"} borderRadius={30} isDisabled={page===0} onClick={
-        () => setPage(p => p === 0 ? p : (p - 1))
-      }>
+      <Button size="lg" position={"fixed"} left={10} bottom={"50%"} borderRadius={30} isDisabled={page===0} onClick={() => setPage(p => p === 0 ? p : (p - 1))}>
         {"⟨"}
       </Button>
       

@@ -6,7 +6,6 @@ import {
   Heading,
   Text,
   Link,
-  Alert,
 } from "@chakra-ui/react";
 import { getUserKeyFromSnap } from "../nillion/getUserKeyFromSnap";
 
@@ -25,7 +24,7 @@ function sleep(ms: number) {
 }
   
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
-  const {c2, setC2} = React.useContext(UserContext);
+  const {myUserKey, setMyUserKey} = React.useContext(UserContext);
   const [loading, setLoading] = useState(false);
   // const [userKey, setUserKey] = useState<string | null>(null);
 
@@ -33,12 +32,11 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
     setLoading(true);
     try {
       const snapResponse = await getUserKeyFromSnap();
-      if (snapResponse == undefined) {
+      if (snapResponse === undefined) {
         throw new Error("Snap response is undefined");
       }
       console.log(snapResponse?.user_key);
-      setC2(snapResponse?.user_key || null);
-      // setC2(snapResponse?.connectedToSnap || false);
+      setMyUserKey(snapResponse?.user_key || null);
       setLoading(false);
       await sleep(300);
       nextPage();
@@ -51,7 +49,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
 
   async function handleDisconnectSnap() {
     // setUserKey(null);
-    setC2(null);
+    setMyUserKey(null);
   }
 
   return <VStack paddingY={0} justify="space-around" alignItems="left">
@@ -61,10 +59,10 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({nextPage}) => {
       <Text>
         Connect to your Nillion account. You need to install the Nillion snap on MetaMask Flask. Find the instructions <Link target="_blank" href="https://nillion-snap-site.vercel.app/" textDecoration={"underline"}>here</Link>.
       </Text>
-      {(c2 !== null) && <Button onClick={handleDisconnectSnap} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
+      {(myUserKey !== null) && <Button onClick={handleDisconnectSnap} loadingText="Connecting..." isLoading={loading} bg="#66AA6A" _hover={{bg: "#66BB6A"}}>
         {"Connected"}
       </Button>}
-      {(c2 == null) && <Button onClick={handleConnectToSnap} loadingText="Connecting..." isLoading={loading} >
+      {(myUserKey == null) && <Button onClick={handleConnectToSnap} loadingText="Connecting..." isLoading={loading} >
         Connect Wallet
       </Button>}
     </VStack>

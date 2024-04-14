@@ -11,19 +11,14 @@ import {
   Th,
   Td,
   TableContainer,
-  ButtonGroup,
   HStack,
-  Text,
   Input,
   InputGroup,
   InputLeftAddon,
-  InputRightAddon,
   InputRightElement,
 } from "@chakra-ui/react"
-import { FaArrowCircleLeft, FaGoogle, FaGrinTears, FaRecycle } from "react-icons/fa";
 
 import { UserContext } from "../App";
-import { addressTruncate } from "./ConnectWallet";
 import { storeSecretsInteger } from "../nillion/storeSecretsInteger";
 
 const days = 7;
@@ -77,35 +72,48 @@ export const Calender: React.FC<CalenderProps> = ({nextPage}) => {
 
   const [calender, setCalender] = useState<Array<Array<number>>>(calenderArr);
   const timeslots = ["9am-10am", "10am-11am", "11am-12am", "12am-1pm", "1pm-2pm", "2pm-3pm", "3pm-4pm", "4pm-5pm"];
+  const [loading, setLoading] = useState(false);
 
-  const { c3, nillion, nillionClient, setCal0store } = React.useContext(UserContext);
+  const { nillion, nillionClient, setCal0store,
+    setCal1store, programId, partyBit, host,
+    setSignalingChannel, setResult
+   } = React.useContext(UserContext);
 
   const submitCalendar = async () => {
-    if (c3) {
-      await storeSecretsInteger(
-        nillion,
-        nillionClient,
-        calender.flat().map((v, i) => { return {name: "calender_p" + c3.party + "_h" + i, value: (v+1).toString()} }),
-        c3.programId,
-        "Party" + c3.party,
-        [], [], [],
-        // [],
-        (c3.party === 0) ? [] : [c3.participants[0]],
-      ).then(async (store_id: string) => {
-        console.log("Secret stored at store_id:", store_id);
+    setLoading(true);
+    await storeSecretsInteger(
+      nillion,
+      nillionClient,
+      calender.flat().map((v, i) => { return {name: "calender_p" + partyBit + "_h" + i, value: (v+1).toString()} }),
+      programId,
+      "Party" + partyBit,
+      [], [], [],
+      (partyBit === 0) ? [] : [host],
+    ).then(async (store_id: string) => {
+      console.log("Secret stored at store_id:", store_id);
+      if (partyBit === 0)
         setCal0store(store_id);
-        if (c3.party == 1) {
-          const SignalingChannel = require("../signalling/signaling");
-          const peerId = c3.programId + "-other";
-          const signalingServerUrl = "http://kanav.eastus.cloudapp.azure.com:3030/";
-          const token = "SIGNALING123";
-          const channel = new SignalingChannel(peerId, signalingServerUrl, token);
-          channel.connect();
-          channel.sendTo(c3.programId, {store_id, party_id: nillionClient.party_id});
-        }
-        nextPage();
-      });
-    }
+      if (partyBit === 1) {
+        setCal1store(store_id);
+        const SignalingChannel = require("../signalling/signaling");
+        const peerId = programId + "-other";
+        const signalingServerUrl = "http://kanav.eastus.cloudapp.azure.com:3030/";
+        const token = "SIGNALING123";
+        const channel = new SignalingChannel(peerId, signalingServerUrl, token);
+        channel.connect();
+        channel.sendTo(programId, {store_id, party_id: nillionClient.party_id});
+        channel.onMessage = (message: any) => {
+          console.log(message);
+          if (message.from === programId) {
+            if (message.message)
+              setResult(message.message.result)
+          }
+        };
+        setSignalingChannel(channel);
+      }
+      setLoading(false);
+      nextPage();
+    });
   }
 
   return <VStack paddingY={0} justify="space-around" alignItems="left">
@@ -115,9 +123,9 @@ export const Calender: React.FC<CalenderProps> = ({nextPage}) => {
       <HStack justify="flex-start" spacing={50}>
         <InputGroup size='md'>
           <InputLeftAddon>Event Code</InputLeftAddon>
-          <Input value={(c3?.programId || "")} pr='4.5rem' readOnly></Input>
+          <Input value={(programId || "")} pr='4.5rem' readOnly></Input>
           <InputRightElement width='4.5rem'>
-            <Button size='sm' h='1.75rem' onClick={() => navigator.clipboard.writeText(c3?.programId || "")}>Copy</Button>
+            <Button size='sm' h='1.75rem' onClick={() => navigator.clipboard.writeText(programId || "")}>Copy</Button>
           </InputRightElement>
         </InputGroup>
         <Button onClick={() => setCalender(calenderArr)}>Reset</Button>
@@ -145,7 +153,7 @@ export const Calender: React.FC<CalenderProps> = ({nextPage}) => {
           </Tbody>
         </Table>
       </TableContainer>
-      <Button onClick={submitCalendar}>Continue</Button>
+      <Button onClick={submitCalendar} isLoading={loading}>Continue</Button>
     </VStack>
   </VStack>;
 }
