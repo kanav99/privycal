@@ -1,9 +1,7 @@
 import React from "react";
 import {
-    Text,
     VStack,
     Button,
-    HStack,
     Heading,
     Link,
   } from "@chakra-ui/react";

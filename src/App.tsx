@@ -2,7 +2,7 @@ import * as React from "react"
 import { useState } from "react";
 import {
   ChakraProvider,
-  theme,
+  extendTheme,
   Button,
   HStack,
 } from "@chakra-ui/react";
@@ -13,6 +13,15 @@ import { ConnectWallet } from "./components/ConnectWallet";
 import { AddParticipants } from "./components/AddParticipants";
 import { Results } from "./components/Results";
 import { Finalize } from "./components/Final";
+
+const config = {
+  initialColorMode: "dark",
+  useSystemColorMode: false,
+};
+
+const theme = extendTheme({ 
+  config,
+});
 
 const appName = "PrivyCal";
 
