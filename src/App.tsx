@@ -12,13 +12,14 @@ import { HomePage } from "./components/HomePage";
 import { ConnectWallet } from "./components/ConnectWallet";
 import { AddParticipants } from "./components/AddParticipants";
 import { Results } from "./components/Results";
+import { Finalize } from "./components/Final";
 
 const appName = "PrivyCal";
 
 export const UserContext = React.createContext<any>(null);
 
 export const App = () => {
-  const numPages = 5;
+  const numPages = 6;
   const [page, setPage] = useState<number>(0);
 
   function handleScroll() {
@@ -97,6 +98,7 @@ export const App = () => {
         <AddParticipants nextPage={nextPage} />
         <Calender nextPage={nextPage}/>
         <Results nextPage={nextPage}/>
+        <Finalize />
       </HStack>
 
       <Button size="lg" position={"fixed"} left={10} bottom={"50%"} borderRadius={30} isDisabled={page===0} onClick={() => setPage(p => p === 0 ? p : (p - 1))}>

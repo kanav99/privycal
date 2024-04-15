@@ -13,6 +13,7 @@ import {
   
   import { UserContext } from "../App";
 import { compute } from "../nillion/compute";
+import { ReactTyped } from "react-typed";
   
   interface ResultsProps {
     nextPage: () => void;
@@ -27,6 +28,8 @@ import { compute } from "../nillion/compute";
     
     const computeIntersection = async () => {
       setLoading(true);
+      nextPage();
+      signalingChannel.sendTo(programId + "-other", {fin: true});
       const result = await compute(nillion, nillionClient, otherPartyId, [cal0store, cal1store], programId, "max_date");
       setResult(result);
       setLoading(false);
@@ -49,14 +52,16 @@ import { compute } from "../nillion/compute";
           <HStack>
             <InputGroup size='md'>
               <InputLeftAddon>Host</InputLeftAddon>
-              <Input value={(cal0store === null ? "Pending" : "Ready")} pr='4.5rem' readOnly></Input>
+              <Input value={(cal0store === null ? "Pending   🟡" : "Ready   ✅")} pr='4.5rem' readOnly></Input>
             </InputGroup>
             <InputGroup size='md'>
               <InputLeftAddon>Client</InputLeftAddon>
-              <Input value={(cal1store === null ? "Pending" : "Ready")} pr='4.5rem' readOnly></Input>
+              <Input value={(cal1store === null ? "Pending   🟡" : "Ready   ✅")} pr='4.5rem' readOnly></Input>
             </InputGroup>
           </HStack>
-          <Button onClick={computeIntersection} isLoading={loading} isDisabled={(partyBit === 1) || !(cal1store !== null && cal0store !== null)}>Find a time!</Button>
+          {(partyBit === 1) && <Text>Waiting for host<ReactTyped strings={[".", "..", "..."]} typeSpeed={80} showCursor={false} loop/></Text>}
+          {(partyBit === 0) && (cal1store === null) && <Text>Waiting for client<ReactTyped strings={[".", "..", "..."]} typeSpeed={80} showCursor={false} loop/></Text>}
+          {(partyBit === 0) && <Button onClick={computeIntersection} isLoading={loading} isDisabled={(partyBit === 1) || !(cal1store !== null && cal0store !== null)}>Find a time!</Button>}
           {(result !== "") && <Text>You should meet at {timeslots[parseInt(result)]}!</Text>}
           </VStack>
         </VStack>

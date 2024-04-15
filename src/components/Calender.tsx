@@ -105,8 +105,13 @@ export const Calender: React.FC<CalenderProps> = ({nextPage}) => {
           console.log("Got message: ");
           console.log(message);
           if (message.from === programId) {
-            if (message.message)
-              setResult(message.message.result)
+            if (message.message) {
+              if (message.message.result) {
+                setResult(message.message.result)
+              }
+              if (message.message.fin)
+                nextPage();
+            }
           }
         };
         channel.connect();
